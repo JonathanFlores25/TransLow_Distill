@@ -1,0 +1,26 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "clip"
+version = "1.0.0"
+description = "ActionCLIP: A New Paradigm for Action Recognition (bundled CLIP fork)"
+authors = [
+    { name = "OpenAI" },
+    { name = "Mengmeng Wang" },
+    { name = "Jiazheng Xing" },
+    { name = "Yong Liu" },
+]
+requires-python = ">= 3.12"
+dependencies = [
+    "ftfy",
+    "regex",
+    "tqdm",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["clip"]

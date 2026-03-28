@@ -1,0 +1,27 @@
+Pesos requeridos por Arconte Framework
+=======================================
+
+Los 3 archivos deben estar en esta carpeta (.checkpoints/) antes de correr.
+
+1. yolo11x.pt
+   Uso    : Tracker general (personas y vehículos)
+   Fuente : Ultralytics — https://github.com/ultralytics/assets/releases
+   Carga  : core/tracker.py
+
+2. best_large.pt
+   Uso    : Detector YOLO de fuego y humo (modelo entrenado ArconteKG)
+   Fuente : Modelo propio
+   Carga  : experts/fire_expert.py
+
+3. ViT-L-14.pt
+   Uso    : CLIP ViT-L/14 — clasificador Zero-Shot compartido por todos los expertos
+   Fuente : Cachea automáticamente en ~/.cache/clip/ViT-L-14.pt al correr clip.load()
+            Si ya lo tienes en esa ruta, solo copialo aquí:
+            cp ~/.cache/clip/ViT-L-14.pt .checkpoints/
+   Carga  : main.py
+
+Estructura final esperada:
+    .checkpoints/
+    ├── yolo11x.pt
+    ├── best_large.pt
+    └── ViT-L-14.pt
