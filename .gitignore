@@ -11,6 +11,9 @@
 #Testing Output folder
 .output/
 #Extension App-file
+
+./data/vmae_features/
+
 *.app
 #Rapid Application Development File
 rad.json
@@ -39,3 +42,6 @@ TestResults.xml
 *.pptx
 *.zip
 *.rar
+*.npy
+*.npz
+*.pyc

@@ -1,0 +1,130 @@
+2026-04-03 21:17:41,025 [INFO] ========================================================================
+2026-04-03 21:17:41,025 [INFO] Pseudo-Label Generator  |  UCF-Crime
+2026-04-03 21:17:41,025 [INFO]   Videos       : 1416
+2026-04-03 21:17:41,025 [INFO]   Workers      : 3
+2026-04-03 21:17:41,025 [INFO]   P-threshold  : 0.050
+2026-04-03 21:17:41,025 [INFO]   Window ratio : 20%
+2026-04-03 21:17:41,025 [INFO]   Visual clips : True
+2026-04-03 21:17:41,025 [INFO] ========================================================================
+2026-04-03 21:17:41,025 [INFO] Step 1: expert scoring con 3 workers...
+2026-04-03 21:17:41,026 [INFO]   Videos a scorear : 616  (normales saltados: 800)
+2026-04-03 21:58:09,595 [INFO] ========================================================================
+2026-04-03 21:58:09,595 [INFO] Pseudo-Label Generator  |  UCF-Crime
+2026-04-03 21:58:09,595 [INFO]   Videos       : 1416
+2026-04-03 21:58:09,595 [INFO]   Workers      : 3
+2026-04-03 21:58:09,595 [INFO]   P-threshold  : 0.050
+2026-04-03 21:58:09,595 [INFO]   Window ratio : 20%
+2026-04-03 21:58:09,595 [INFO]   Visual clips : True
+2026-04-03 21:58:09,595 [INFO] ========================================================================
+2026-04-03 21:58:09,595 [INFO] Step 1: expert scoring con 3 workers...
+2026-04-03 21:58:09,596 [INFO]   Videos a scorear : 616  (normales saltados: 800)
+2026-04-03 22:01:32,853 [INFO] ========================================================================
+2026-04-03 22:01:32,853 [INFO] Pseudo-Label Generator  |  UCF-Crime
+2026-04-03 22:01:32,853 [INFO]   Videos       : 1416
+2026-04-03 22:01:32,853 [INFO]   Workers      : 3
+2026-04-03 22:01:32,853 [INFO]   P-threshold  : 0.050
+2026-04-03 22:01:32,853 [INFO]   Window ratio : 20%
+2026-04-03 22:01:32,853 [INFO]   Visual clips : True
+2026-04-03 22:01:32,853 [INFO] ========================================================================
+2026-04-03 22:01:32,853 [INFO] Step 1: expert scoring con 3 workers...
+2026-04-03 22:01:32,854 [INFO]   Videos a scorear : 616  (normales saltados: 800)
+2026-04-03 22:10:17,753 [INFO] ========================================================================
+2026-04-03 22:10:17,753 [INFO] Pseudo-Label Generator  |  UCF-Crime
+2026-04-03 22:10:17,753 [INFO]   Videos       : 1416
+2026-04-03 22:10:17,753 [INFO]   Workers      : 3
+2026-04-03 22:10:17,753 [INFO]   P-threshold  : 0.050
+2026-04-03 22:10:17,753 [INFO]   Window ratio : 20%
+2026-04-03 22:10:17,753 [INFO]   Visual clips : True
+2026-04-03 22:10:17,753 [INFO] ========================================================================
+2026-04-03 22:10:17,753 [INFO] Step 1: expert scoring con 3 workers...
+2026-04-03 22:10:17,754 [INFO]   Videos a scorear : 616  (normales saltados: 800)
+2026-04-03 22:27:09,163 [INFO] ========================================================================
+2026-04-03 22:27:09,163 [INFO] Pseudo-Label Generator  |  UCF-Crime
+2026-04-03 22:27:09,163 [INFO]   Videos       : 1416
+2026-04-03 22:27:09,163 [INFO]   Workers      : 3
+2026-04-03 22:27:09,163 [INFO]   P-threshold  : 0.050
+2026-04-03 22:27:09,163 [INFO]   Window ratio : 20%
+2026-04-03 22:27:09,163 [INFO]   Visual clips : True
+2026-04-03 22:27:09,163 [INFO] ========================================================================
+2026-04-03 22:27:09,163 [INFO] Step 1: expert scoring con 3 workers...
+2026-04-03 22:27:09,164 [INFO]   Videos a scorear : 616  (normales saltados: 800)
+2026-04-03 22:37:14,139 [INFO] ========================================================================
+2026-04-03 22:37:14,139 [INFO] Pseudo-Label Generator  |  UCF-Crime
+2026-04-03 22:37:14,139 [INFO]   Videos       : 1416
+2026-04-03 22:37:14,140 [INFO]   Workers      : 3
+2026-04-03 22:37:14,140 [INFO]   P-threshold  : 0.050
+2026-04-03 22:37:14,140 [INFO]   Window ratio : 20%
+2026-04-03 22:37:14,140 [INFO]   Visual clips : True
+2026-04-03 22:37:14,140 [INFO] ========================================================================
+2026-04-03 22:37:14,140 [INFO] Step 1: expert scoring con 3 workers...
+2026-04-03 22:37:14,141 [INFO]   Videos a scorear : 616  (normales saltados: 800)
+2026-04-04 01:16:27,207 [INFO] ========================================================================
+2026-04-04 01:16:27,207 [INFO] Pseudo-Label Generator  |  UCF-Crime
+2026-04-04 01:16:27,207 [INFO]   Videos       : 1416
+2026-04-04 01:16:27,207 [INFO]   Workers      : 3
+2026-04-04 01:16:27,207 [INFO]   P-threshold  : 0.050
+2026-04-04 01:16:27,207 [INFO]   Window ratio : 20%
+2026-04-04 01:16:27,207 [INFO]   Visual clips : True
+2026-04-04 01:16:27,207 [INFO] ========================================================================
+2026-04-04 01:16:27,207 [INFO] Step 1: expert scoring con 3 workers...
+2026-04-04 01:16:27,208 [INFO]   Videos a scorear : 616  (normales saltados: 800)
+2026-04-04 03:26:52,854 [INFO] ========================================================================
+2026-04-04 03:26:52,854 [INFO] Pseudo-Label Generator  |  UCF-Crime
+2026-04-04 03:26:52,854 [INFO]   Videos       : 1416
+2026-04-04 03:26:52,854 [INFO]   Workers      : 3
+2026-04-04 03:26:52,854 [INFO]   P-threshold  : 0.050
+2026-04-04 03:26:52,854 [INFO]   Window ratio : 20%
+2026-04-04 03:26:52,854 [INFO]   Visual clips : True
+2026-04-04 03:26:52,854 [INFO] ========================================================================
+2026-04-04 03:26:52,854 [INFO] Step 1: expert scoring con 3 workers...
+2026-04-04 03:26:52,855 [INFO]   Videos a scorear : 616  (normales saltados: 800)
+2026-04-04 04:06:32,626 [INFO] ========================================================================
+2026-04-04 04:06:32,626 [INFO] Pseudo-Label Generator  |  UCF-Crime
+2026-04-04 04:06:32,626 [INFO]   Videos       : 1416
+2026-04-04 04:06:32,626 [INFO]   Workers      : 3
+2026-04-04 04:06:32,626 [INFO]   P-threshold  : 0.050
+2026-04-04 04:06:32,626 [INFO]   Window ratio : 20%
+2026-04-04 04:06:32,626 [INFO]   Visual clips : True
+2026-04-04 04:06:32,626 [INFO] ========================================================================
+2026-04-04 04:06:32,626 [INFO] Step 1: expert scoring con 3 workers...
+2026-04-04 04:06:32,627 [INFO]   Videos a scorear : 616  (normales saltados: 800)
+2026-04-04 04:06:53,265 [INFO] ========================================================================
+2026-04-04 04:06:53,265 [INFO] Pseudo-Label Generator  |  UCF-Crime
+2026-04-04 04:06:53,265 [INFO]   Videos       : 1416
+2026-04-04 04:06:53,265 [INFO]   Workers      : 3
+2026-04-04 04:06:53,265 [INFO]   P-threshold  : 0.050
+2026-04-04 04:06:53,265 [INFO]   Window ratio : 20%
+2026-04-04 04:06:53,265 [INFO]   Visual clips : True
+2026-04-04 04:06:53,265 [INFO] ========================================================================
+2026-04-04 04:06:53,265 [INFO] Step 1: expert scoring con 3 workers...
+2026-04-04 04:06:53,266 [INFO]   Videos a scorear : 616  (normales saltados: 800)
+2026-04-04 04:09:48,146 [INFO] ========================================================================
+2026-04-04 04:09:48,146 [INFO] Pseudo-Label Generator  |  UCF-Crime
+2026-04-04 04:09:48,146 [INFO]   Videos       : 1416
+2026-04-04 04:09:48,146 [INFO]   Workers      : 3
+2026-04-04 04:09:48,146 [INFO]   P-threshold  : 0.050
+2026-04-04 04:09:48,147 [INFO]   Window ratio : 20%
+2026-04-04 04:09:48,147 [INFO]   Visual clips : True
+2026-04-04 04:09:48,147 [INFO] ========================================================================
+2026-04-04 04:09:48,147 [INFO] Step 1: expert scoring con 3 workers...
+2026-04-04 04:09:48,147 [INFO]   Videos a scorear : 616  (normales saltados: 800)
+2026-04-04 04:11:26,539 [INFO] ========================================================================
+2026-04-04 04:11:26,539 [INFO] Pseudo-Label Generator  |  UCF-Crime
+2026-04-04 04:11:26,539 [INFO]   Videos       : 1416
+2026-04-04 04:11:26,539 [INFO]   Workers      : 1
+2026-04-04 04:11:26,539 [INFO]   P-threshold  : 0.050
+2026-04-04 04:11:26,539 [INFO]   Window ratio : 20%
+2026-04-04 04:11:26,539 [INFO]   Visual clips : True
+2026-04-04 04:11:26,539 [INFO] ========================================================================
+2026-04-04 04:11:26,539 [INFO] Step 1: expert scoring con 1 workers...
+2026-04-04 04:11:26,540 [INFO]   Videos a scorear : 616  (normales saltados: 800)
+2026-04-04 19:35:49,497 [INFO] Step 1: done en 924 min — caché en /media/pc/MainWork/Codes/TransLow_Distill/data/pseudo_labels/expert_scores.npy
+2026-04-04 19:35:49,498 [INFO] Step 2: ajustando distribución normal sobre features VideoMAE...
+2026-04-04 19:35:53,233 [INFO] Cargando 591027 features normales para distribución...
+2026-04-04 19:37:06,206 [INFO] Distribución normal: mu=100.9564  sigma=11.2546
+2026-04-04 19:37:06,417 [INFO] Step 3: generando GT (binario + multiclase)...
+2026-04-05 01:43:51,515 [INFO] ========================================================================
+2026-04-05 01:43:51,521 [INFO] GT generado:
+2026-04-05 01:43:51,521 [INFO]   Total clips   : 141107
+2026-04-05 01:43:51,522 [INFO]   Anómalos soft : 27975  (ambas señales coinciden)
+2026-04-05 01:43:51,522 [INFO]   Normales      : 113257
