@@ -1,0 +1,50 @@
+2026-04-05 20:55:16,280 [INFO] Annotations: 290 videos
+2026-04-05 20:55:16,283 [INFO] Videos to process: 290  (found in /media/pc/backup1/BaseDeDatos/UCF-Crime/Videos)
+2026-04-05 20:55:16,283 [INFO] Loading CLIP model from /media/pc/MainWork/Codes/TransLow_Distill/.checkpoints/ViT-L-14.pt on cuda...
+2026-04-05 20:55:19,488 [INFO] Loading expert text embeddings...
+2026-04-05 20:55:19,628 [INFO]   [fight] loaded
+2026-04-05 20:55:19,682 [INFO]   [crash] loaded
+2026-04-05 20:55:19,697 [INFO]   [fire] loaded
+2026-04-05 20:55:22,197 [INFO]   [robbery] loaded
+2026-04-05 20:55:22,229 [INFO]   [carparts] loaded
+2026-04-05 20:55:22,229 [INFO] All 5 experts ready.
+2026-04-05 20:55:22,229 [INFO] [1/290] Processing Abuse028_x264  (Abuse)
+2026-04-05 20:57:14,048 [INFO]   Abuse028_x264 — 87 clips | 85 active (98%)
+2026-04-05 20:57:14,049 [INFO]   → 87 clips, 111.8 s  |  video pred: ANOMALY  |  GT: Abuse
+2026-04-05 20:57:14,128 [INFO] [2/290] Processing Abuse030_x264  (Abuse)
+2026-04-05 20:59:14,259 [INFO]   Abuse030_x264 — 95 clips | 95 active (100%)
+2026-04-05 20:59:14,259 [INFO]   → 95 clips, 120.1 s  |  video pred: ANOMALY  |  GT: Abuse
+2026-04-05 20:59:14,324 [INFO] [3/290] Processing Arrest001_x264  (Arrest)
+2026-04-05 21:02:31,069 [INFO]   Arrest001_x264 — 147 clips | 146 active (99%)
+2026-04-05 21:02:31,070 [INFO]   → 147 clips, 196.7 s  |  video pred: ANOMALY  |  GT: Arrest
+2026-04-05 21:02:31,132 [INFO] [4/290] Processing Arrest007_x264  (Arrest)
+2026-04-05 21:06:40,932 [INFO]   Arrest007_x264 — 195 clips | 194 active (99%)
+2026-04-05 21:06:40,933 [INFO]   → 195 clips, 249.8 s  |  video pred: ANOMALY  |  GT: Arrest
+2026-04-05 21:06:40,998 [INFO] [5/290] Processing Arrest024_x264  (Arrest)
+2026-04-05 21:12:29,680 [INFO]   Arrest024_x264 — 225 clips | 211 active (94%)
+2026-04-05 21:12:29,681 [INFO]   → 225 clips, 348.7 s  |  video pred: ANOMALY  |  GT: Arrest
+2026-04-05 21:12:29,750 [INFO] [6/290] Processing Arrest030_x264  (Arrest)
+2026-04-05 21:24:24,095 [INFO]   Arrest030_x264 — 539 clips | 538 active (100%)
+2026-04-05 21:24:24,097 [INFO]   → 539 clips, 714.3 s  |  video pred: ANOMALY  |  GT: Arrest
+2026-04-05 21:24:24,167 [INFO] [7/290] Processing Arrest039_x264  (Arrest)
+2026-04-05 21:46:05,536 [INFO]   Arrest039_x264 — 988 clips | 831 active (84%)
+2026-04-05 21:46:05,540 [INFO]   → 988 clips, 1301.4 s  |  video pred: ANOMALY  |  GT: Arrest
+2026-04-05 21:46:05,618 [INFO] [8/290] Processing Arson007_x264  (Arson)
+2026-04-05 21:54:25,578 [INFO]   Arson007_x264 — 389 clips | 389 active (100%)
+2026-04-05 21:54:25,616 [INFO]   → 389 clips, 500.0 s  |  video pred: ANOMALY  |  GT: Arson
+2026-04-05 21:54:25,685 [INFO] [9/290] Processing Arson009_x264  (Arson)
+2026-04-05 21:55:35,710 [INFO]   Arson009_x264 — 45 clips | 45 active (100%)
+2026-04-05 21:55:35,711 [INFO]   → 45 clips, 70.0 s  |  video pred: ANOMALY  |  GT: Arson
+2026-04-05 21:55:35,778 [INFO] [10/290] Processing Arson010_x264  (Arson)
+2026-04-05 22:00:29,920 [INFO]   Arson010_x264 — 196 clips | 196 active (100%)
+2026-04-05 22:00:29,921 [INFO]   → 196 clips, 294.1 s  |  video pred: ANOMALY  |  GT: Arson
+2026-04-05 22:00:29,985 [INFO] [11/290] Processing Arson011_x264  (Arson)
+2026-04-05 22:02:20,110 [INFO]   Arson011_x264 — 78 clips | 74 active (95%)
+2026-04-05 22:02:20,111 [INFO]   → 78 clips, 110.1 s  |  video pred: ANOMALY  |  GT: Arson
+2026-04-05 22:02:20,178 [INFO] [12/290] Processing Arson016_x264  (Arson)
+2026-04-05 22:05:03,953 [INFO]   Arson016_x264 — 111 clips | 79 active (71%)
+2026-04-05 22:05:03,954 [INFO]   → 111 clips, 163.8 s  |  video pred: ANOMALY  |  GT: Arson
+2026-04-05 22:05:04,023 [INFO] [13/290] Processing Arson018_x264  (Arson)
+2026-04-05 22:06:26,201 [INFO]   Arson018_x264 — 51 clips | 50 active (98%)
+2026-04-05 22:06:26,202 [INFO]   → 51 clips, 82.2 s  |  video pred: ANOMALY  |  GT: Arson
+2026-04-05 22:06:26,269 [INFO] [14/290] Processing Arson022_x264  (Arson)
