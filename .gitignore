@@ -45,3 +45,5 @@ TestResults.xml
 *.npy
 *.npz
 *.pyc
+.python-version
+*.lock
