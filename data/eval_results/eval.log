@@ -48,3 +48,54 @@
 2026-04-05 22:06:26,201 [INFO]   Arson018_x264 — 51 clips | 50 active (98%)
 2026-04-05 22:06:26,202 [INFO]   → 51 clips, 82.2 s  |  video pred: ANOMALY  |  GT: Arson
 2026-04-05 22:06:26,269 [INFO] [14/290] Processing Arson022_x264  (Arson)
+2026-04-05 22:17:41,890 [INFO]   Arson022_x264 — 539 clips | 539 active (100%)
+2026-04-05 22:17:41,892 [INFO]   → 539 clips, 675.6 s  |  video pred: ANOMALY  |  GT: Arson
+2026-04-05 22:17:41,962 [INFO] [15/290] Processing Arson035_x264  (Arson)
+2026-04-05 22:19:41,697 [INFO]   Arson035_x264 — 88 clips | 87 active (99%)
+2026-04-05 22:19:41,698 [INFO]   → 88 clips, 119.7 s  |  video pred: ANOMALY  |  GT: Arson
+2026-04-05 22:19:41,764 [INFO] [16/290] Processing Arson041_x264  (Arson)
+2026-04-05 22:24:46,421 [INFO]   Arson041_x264 — 233 clips | 233 active (100%)
+2026-04-05 22:24:46,422 [INFO]   → 233 clips, 304.7 s  |  video pred: ANOMALY  |  GT: Arson
+2026-04-05 22:24:46,490 [INFO] [17/290] Processing Assault006_x264  (Assault)
+2026-04-05 22:38:53,885 [INFO]   Assault006_x264 — 505 clips | 503 active (100%)
+2026-04-05 22:38:53,888 [INFO]   → 505 clips, 847.4 s  |  video pred: ANOMALY  |  GT: Assault
+2026-04-05 22:38:53,959 [INFO] [18/290] Processing Assault010_x264  (Assault)
+2026-04-05 23:01:38,255 [INFO]   Assault010_x264 — 1010 clips | 1010 active (100%)
+2026-04-05 23:01:38,259 [INFO]   → 1010 clips, 1364.3 s  |  video pred: ANOMALY  |  GT: Assault
+2026-04-05 23:01:38,340 [INFO] [19/290] Processing Assault011_x264  (Assault)
+2026-04-05 23:06:38,093 [INFO]   Assault011_x264 — 142 clips | 132 active (93%)
+2026-04-05 23:06:38,095 [INFO]   → 142 clips, 299.8 s  |  video pred: ANOMALY  |  GT: Assault
+2026-04-05 23:06:38,160 [INFO] [20/290] Processing Burglary005_x264  (Burglary)
+2026-04-05 23:16:58,483 [INFO]   Burglary005_x264 — 482 clips | 412 active (85%)
+2026-04-05 23:16:58,486 [INFO]   → 482 clips, 620.3 s  |  video pred: ANOMALY  |  GT: Burglary
+2026-04-05 23:16:58,564 [INFO] [21/290] Processing Burglary017_x264  (Burglary)
+2026-04-05 23:19:50,977 [INFO]   Burglary017_x264 — 131 clips | 131 active (100%)
+2026-04-05 23:19:50,978 [INFO]   → 131 clips, 172.4 s  |  video pred: ANOMALY  |  GT: Burglary
+2026-04-05 23:19:51,048 [INFO] [22/290] Processing Burglary018_x264  (Burglary)
+2026-04-05 23:21:21,153 [INFO]   Burglary018_x264 — 69 clips | 69 active (100%)
+2026-04-05 23:21:21,153 [INFO]   → 69 clips, 90.1 s  |  video pred: ANOMALY  |  GT: Burglary
+2026-04-05 23:21:21,223 [INFO] [23/290] Processing Burglary021_x264  (Burglary)
+2026-04-05 23:23:22,111 [INFO]   Burglary021_x264 — 95 clips | 95 active (100%)
+2026-04-05 23:23:22,111 [INFO]   → 95 clips, 120.9 s  |  video pred: ANOMALY  |  GT: Burglary
+2026-04-05 23:23:22,181 [INFO] [24/290] Processing Burglary024_x264  (Burglary)
+2026-04-05 23:28:09,010 [INFO]   Burglary024_x264 — 224 clips | 224 active (100%)
+2026-04-05 23:28:09,011 [INFO]   → 224 clips, 286.8 s  |  video pred: ANOMALY  |  GT: Burglary
+2026-04-05 23:28:09,081 [INFO] [25/290] Processing Burglary032_x264  (Burglary)
+2026-04-05 23:49:42,974 [INFO]   Burglary032_x264 — 986 clips | 986 active (100%)
+2026-04-05 23:49:42,978 [INFO]   → 986 clips, 1293.9 s  |  video pred: ANOMALY  |  GT: Burglary
+2026-04-05 23:49:43,055 [INFO] [26/290] Processing Burglary033_x264  (Burglary)
+2026-04-05 23:51:22,133 [INFO]   Burglary033_x264 — 77 clips | 76 active (99%)
+2026-04-05 23:51:22,133 [INFO]   → 77 clips, 99.1 s  |  video pred: ANOMALY  |  GT: Burglary
+2026-04-05 23:51:22,201 [INFO] [27/290] Processing Burglary035_x264  (Burglary)
+2026-04-05 23:56:44,030 [INFO]   Burglary035_x264 — 252 clips | 252 active (100%)
+2026-04-05 23:56:44,073 [INFO]   → 252 clips, 321.9 s  |  video pred: ANOMALY  |  GT: Burglary
+2026-04-05 23:56:44,145 [INFO] [28/290] Processing Burglary037_x264  (Burglary)
+2026-04-05 23:59:20,933 [INFO]   Burglary037_x264 — 119 clips | 119 active (100%)
+2026-04-05 23:59:20,934 [INFO]   → 119 clips, 156.8 s  |  video pred: ANOMALY  |  GT: Burglary
+2026-04-05 23:59:21,006 [INFO] [29/290] Processing Burglary061_x264  (Burglary)
+2026-04-06 00:11:11,346 [INFO]   Burglary061_x264 — 560 clips | 560 active (100%)
+2026-04-06 00:11:11,349 [INFO]   → 560 clips, 710.3 s  |  video pred: ANOMALY  |  GT: Burglary
+2026-04-06 00:11:11,421 [INFO] [30/290] Processing Burglary076_x264  (Burglary)
+2026-04-06 00:28:42,152 [INFO]   Burglary076_x264 — 806 clips | 766 active (95%)
+2026-04-06 00:28:42,156 [INFO]   → 806 clips, 1050.7 s  |  video pred: ANOMALY  |  GT: Burglary
+2026-04-06 00:28:42,229 [INFO] [31/290] Processing Burglary079_x264  (Burglary)

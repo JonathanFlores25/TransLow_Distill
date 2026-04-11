@@ -1,0 +1,22 @@
+# VideoMAE VAD Classifier (Step3) — Python dependencies
+#
+# Core ML stack
+torch>=2.0
+torchvision
+numpy
+scikit-learn
+matplotlib
+# Required for loading VideoMAE model and processor (used in FE_VideoMAE.py upstream;
+# not directly imported by Step3 but listed for environment completeness and for
+# users who run feature extraction and classification in the same environment).
+transformers>=4.26
+
+# Optional GPU acceleration
+# cupy-cuda12x provides GPU-accelerated numpy operations.
+# Install only if CUDA 12.x is available; skip otherwise.
+# cupy-cuda12x
+
+# Optional RAPIDS Memory Manager for reduced GPU memory fragmentation.
+# Beneficial for H100/A100 deployments with large batch inference loops.
+# Install only if RAPIDS is configured in your conda/mamba environment.
+# rmm
