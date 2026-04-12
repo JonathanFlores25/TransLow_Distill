@@ -3,25 +3,37 @@
 FE_VideoMAE.py
 ==============
 Extrae features VideoMAE de los videos UCF-Crime, produciendo un archivo
-.npy por clip de 16 frames — con exactamente la misma segmentación temporal
-que data_processor.py para que ambas fuentes se puedan unificar después.
+.npy por clip de 16 frames.
 
-Cada .npy contiene:
-    embedding : float32  (768,)  – media sobre todos los patch tokens
+Modos de extracción
+--------------------
+  Modo estándar (default):
+      shape   : float32  (768,)
+      tamaño  : ~3 KB/clip
+      uso     : videoMae_Freeze v1/v2 — clasificador FC + Soft Triplet
+
+  Modo espacial (--spatial):
+      shape   : float16  (8, 14, 14, 768)
+                T=8   = CLIP_LEN(16) / tubelet_size(2)
+                H=W=14 = OUTPUT_SIZE(224) / patch_size(16)
+                D=768  = hidden_size ViT-Base
+      tamaño  : ~2.4 MB/clip  (~1.75 TB para los 732K clips de UCF-Crime)
+      uso     : videoMae_Freeze v3 — Factored Attention (espacial + temporal)
+
+      Nota de VRAM: batch-size 32 ocupa ~18 GB con spatial.
+      Recomendado: --batch-size 8 (RTX 3080/3090) o --batch-size 16 (A100).
 
 Arquitectura
 ------------
   N reader threads (I/O) → queue → GPU batch processor (hilo principal)
 
-  Los readers leen y decodifican videos en paralelo sin saturar RAM
-  (buffer deslizante por video, máx ~48 frames vivos por thread).
-  El procesador GPU drena la queue en batches para maximizar utilización.
-
 Uso
 ---
-    python FE_VideoMAE.py
-    python FE_VideoMAE.py --workers 4 --batch-size 32
-    python FE_VideoMAE.py --limit 10    # smoke-test
+    python FE_VideoMAE.py                                     # estándar
+    python FE_VideoMAE.py --spatial                           # espacial
+    python FE_VideoMAE.py --spatial --txt /media/pc/MainWork/Codes/TransLow_Distill/resources/Anomaly_Train_GPU_1.txt --output /media/pc/backup1/BaseDeDatos/UCF-Crime/Features_S_VideoMAE   # disco externo
+    python FE_VideoMAE.py --spatial --batch-size 8            # batch menor (VRAM)
+    python FE_VideoMAE.py --limit 10                          # smoke-test
 """
 
 from __future__ import annotations
@@ -45,9 +57,10 @@ _ROOT = Path(__file__).parent
 sys.path.insert(0, str(_ROOT))
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
-DATASET_TXT = _ROOT / "resources" / "Anomaly_Train.txt"
-VIDEO_ROOT  = Path("/media/pc/backup1/BaseDeDatos/UCF-Crime/Videos")
-OUTPUT_PATH = _ROOT / "data" / "vmae_features"
+DATASET_TXT          = _ROOT / "resources" / "Anomaly_Train.txt"
+VIDEO_ROOT           = Path("/media/pc/backup1/BaseDeDatos/UCF-Crime/Videos")
+OUTPUT_PATH          = _ROOT / "data" / "vmae_features"
+OUTPUT_PATH_SPATIAL  = _ROOT / "data" / "vmae_features_spatial"
 
 # ── Clip params — deben coincidir con data_processor.py ──────────────────────
 CLIP_LEN    = 16   # frames por clip
@@ -56,9 +69,15 @@ CLIP_STEP   = 16   # paso entre inicios de clips consecutivos
 OUTPUT_SIZE = 224
 
 # ── Defaults de rendimiento ───────────────────────────────────────────────────
-NUM_READERS = 4    # threads de lectura/decodificación (I/O bound)
-BATCH_SIZE  = 32   # clips por forward pass de VideoMAE (~4-6 GB VRAM)
-QUEUE_MAX   = 512  # máx clips pendientes en la queue
+# 4090 24 GB: batch_size=96 ocupa ~18 GB en modo estándar (fp16).
+# Referencia orientativa para ajustar:
+#   batch_size 32  →  ~5-6 GB    RTX 3070/3080 8-10 GB
+#   batch_size 64  →  ~9-11 GB   RTX 3080 10 GB / 3090
+#   batch_size 96  →  ~16-18 GB  RTX 4090 24 GB  ← default
+#   batch_size 128 →  ~22-24 GB  A100 80 GB
+NUM_READERS = 8    # threads de lectura/decodificación (I/O bound) — 8 en NVMe/SSD
+BATCH_SIZE  = 96   # clips por forward pass de VideoMAE
+QUEUE_MAX   = 1024 # máx clips pendientes en la queue (mantiene GPU ocupada)
 
 # ── Modelo ────────────────────────────────────────────────────────────────────
 MODEL_NAME = "MCG-NJU/videomae-base-finetuned-kinetics"
@@ -194,11 +213,24 @@ def _gpu_processor(
     device:     str,
     batch_size: int,
     n_readers:  int,
+    spatial:    bool = False,
 ) -> int:
     """
     Drena la queue en batches, corre VideoMAE y guarda .npy.
+
+    Modos
+    -----
+    spatial=False  → mean-pool last_hidden_state → (768,) float32
+    spatial=True   → reshape last_hidden_state   → (8, 14, 14, 768) float16
+                     T=8 (CLIP_LEN/tubelet_size=16/2)
+                     H=W=14 (OUTPUT_SIZE/patch_size=224/16)
+
     Retorna el total de clips guardados.
     """
+    # Tokens esperados: T * H * W = 8 * 14 * 14 = 1568
+    _T, _H, _W = 8, 14, 14
+    assert _T * _H * _W == 1568, "Revisar tubelet/patch sizes"
+
     sentinels   = 0
     total_saved = 0
 
@@ -214,12 +246,25 @@ def _gpu_processor(
             inputs = {k: v.half() if v.dtype == torch.float32 else v
                       for k, v in inputs.items()}
         with torch.no_grad():
-            outputs    = model(**inputs)
-            embeddings = outputs.last_hidden_state.mean(dim=1)  # [B, 768]
-        emb_np = embeddings.cpu().float().numpy().astype(np.float32)
-        for path, emb in zip(batch_paths, emb_np):
-            np.save(path, emb)
-            total_saved += 1
+            outputs = model(**inputs)
+            hidden  = outputs.last_hidden_state  # [B, 1568, 768]
+
+        if spatial:
+            # Reshape a (B, T, H, W, D) y guardar como float16
+            B = hidden.shape[0]
+            tokens = hidden.reshape(B, _T, _H, _W, 768)  # [B, 8, 14, 14, 768]
+            feat_np = tokens.cpu().to(torch.float16).numpy()
+            for path, feat in zip(batch_paths, feat_np):
+                np.save(path, feat)          # float16, (8, 14, 14, 768)
+                total_saved += 1
+        else:
+            # Mean-pool y guardar como float32
+            embeddings = hidden.mean(dim=1)  # [B, 768]
+            emb_np = embeddings.cpu().float().numpy().astype(np.float32)
+            for path, emb in zip(batch_paths, emb_np):
+                np.save(path, emb)           # float32, (768,)
+                total_saved += 1
+
         logging.info("  [GPU] batch %d clips guardados  (total=%d)",
                      len(batch_paths), total_saved)
         batch_paths.clear()
@@ -262,7 +307,10 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument("--txt",        type=Path, default=DATASET_TXT)
     p.add_argument("--video-root", type=Path, default=VIDEO_ROOT)
-    p.add_argument("--output",     type=Path, default=OUTPUT_PATH)
+    p.add_argument("--output",     type=Path, default=None,
+                   help="Directorio de salida. "
+                        "Default: data/vmae_features (estándar) o "
+                        "data/vmae_features_spatial (--spatial).")
     p.add_argument("--model",      type=str,  default=MODEL_NAME)
     p.add_argument("--clip-len",   type=int,  default=CLIP_LEN)
     p.add_argument("--stride",     type=int,  default=STRIDE)
@@ -270,12 +318,27 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--workers",    type=int,  default=NUM_READERS,
                    help="Threads de lectura de video (default 4)")
     p.add_argument("--batch-size", type=int,  default=BATCH_SIZE,
-                   help="Clips por forward pass GPU (default 32, ~5 GB VRAM). "
-                        "Subir a 48-64 si tienes 12+ GB libres.")
+                   help="Clips por forward pass GPU "
+                        "(default 32, ~5 GB VRAM estándar; "
+                        "usar 8-16 con --spatial para evitar OOM).")
     p.add_argument("--queue-max",  type=int,  default=QUEUE_MAX,
                    help="Máx clips en cola antes de bloquear readers (default 512)")
     p.add_argument("--limit",      type=int,  default=0,
                    help="Procesar máximo N videos (0 = todos)")
+    p.add_argument("--spatial",    action="store_true",
+                   help="Guardar tokens espaciales (8,14,14,768) float16 "
+                        "en lugar del embedding global (768,) float32. "
+                        "Requiere ~2.4 MB/clip. Recomendado --batch-size 16.")
+    # ── Sharding: para correr múltiples instancias en paralelo ───────────────
+    # Terminal 0:  --num-shards 2 --shard-id 0
+    # Terminal 1:  --num-shards 2 --shard-id 1
+    # Cada instancia procesa su mitad de la lista de videos sin solaparse.
+    p.add_argument("--num-shards", type=int, default=1,
+                   help="Número total de shards (instancias paralelas). "
+                        "Default 1 = sin sharding.")
+    p.add_argument("--shard-id",   type=int, default=0,
+                   help="Índice del shard actual (0-based). "
+                        "Debe ser < --num-shards.")
     return p.parse_args()
 
 
@@ -286,6 +349,18 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     setup_logging()
     args = parse_args()
+
+    # ── Resolver output dir por defecto según modo ────────────────────────────
+    if args.output is None:
+        args.output = OUTPUT_PATH_SPATIAL if args.spatial else OUTPUT_PATH
+
+    # ── Advertencia de batch_size para modo espacial ──────────────────────────
+    if args.spatial and args.batch_size > 16:
+        logging.warning(
+            "--spatial con batch-size=%d puede causar OOM. "
+            "Recomendado: --batch-size 8 (RTX 3080/3090) o 16 (A100).",
+            args.batch_size,
+        )
 
     with open(args.txt, "r", encoding="utf-8") as fh:
         lines = [ln.strip() for ln in fh if ln.strip()]
@@ -305,13 +380,33 @@ def main() -> None:
             args.output / expert_type,
         ))
 
+    # ── Sharding ──────────────────────────────────────────────────────────────
+    if args.num_shards > 1:
+        if not (0 <= args.shard_id < args.num_shards):
+            raise ValueError(
+                f"--shard-id {args.shard_id} fuera de rango "
+                f"[0, {args.num_shards - 1}]"
+            )
+        # Reparto interleaved: shard 0 → [0, N, 2N, …], shard 1 → [1, N+1, 2N+1, …]
+        # Garantiza distribución uniforme por categoría (los items están ordenados).
+        items = items[args.shard_id :: args.num_shards]
+        logging.info(
+            "Shard %d/%d → %d videos asignados",
+            args.shard_id, args.num_shards, len(items),
+        )
+
     if args.limit:
         items = items[: args.limit]
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
+    mode_str  = "ESPACIAL (8,14,14,768) float16" if args.spatial else "ESTÁNDAR (768,) float32"
+    shard_str = (f"shard {args.shard_id}/{args.num_shards}"
+                 if args.num_shards > 1 else "sin sharding")
     logging.info("=" * 72)
     logging.info("VideoMAE Feature Extractor  |  UCF-Crime")
+    logging.info("  Modo         : %s", mode_str)
+    logging.info("  Shard        : %s", shard_str)
     logging.info("  Modelo       : %s", args.model)
     logging.info("  Device       : %s", device)
     logging.info("  Videos       : %d", len(items))
@@ -355,7 +450,8 @@ def main() -> None:
     # ── GPU processor en hilo principal ──────────────────────────────────────
     t_start     = time.perf_counter()
     total_saved = _gpu_processor(
-        queue, processor, model, device, args.batch_size, n
+        queue, processor, model, device, args.batch_size, n,
+        spatial=args.spatial,
     )
 
     for t in threads:

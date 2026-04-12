@@ -1,4 +1,4 @@
-# VideoMAE VAD Classifier (Step3) — Python dependencies
+|# VideoMAE VAD Classifier (Step3) — Python dependencies
 #
 # Core ML stack
 torch>=2.0
