@@ -170,6 +170,7 @@ def train_v2(
     device,
     triplet_weight: float = 0.3,
     tau:            float = 0.5,
+    scaler=None,
 ):
     """
     Un epoch de entrenamiento con loss combinada BCE + Soft Triplet.
@@ -197,26 +198,29 @@ def train_v2(
     start = time.time()
 
     for features, labels in loader:
-        features = features.to(device, dtype=torch.float32)
-        labels   = labels.to(device,   dtype=torch.float32)
+        features = features.to(device, non_blocking=True, dtype=torch.float32)
+        labels   = labels.to(device,   non_blocking=True, dtype=torch.float32)
 
-        optimizer.zero_grad()
+        optimizer.zero_grad(set_to_none=True)
 
-        # Forward — devuelve (score, embedding)
-        scores, embeddings = model(features)
-        scores = scores.float().flatten()
-
-        # ── BCE con Label Smoothing ───────────────────────────────────────────
-        loss_bce = bce_smooth_fn(scores, labels)
-
-        # ── Soft Triplet con OHNM ─────────────────────────────────────────────
-        loss_triplet = soft_triplet_ohnm(embeddings, labels, tau=tau)
-
-        # ── Loss combinada ────────────────────────────────────────────────────
-        loss = loss_bce + triplet_weight * loss_triplet
-
-        loss.backward()
-        optimizer.step()
+        if scaler is not None:
+            with torch.amp.autocast("cuda"):
+                scores, embeddings = model(features)
+                scores       = scores.float().flatten()
+                loss_bce     = bce_smooth_fn(scores, labels)
+                loss_triplet = soft_triplet_ohnm(embeddings, labels, tau=tau)
+                loss         = loss_bce + triplet_weight * loss_triplet
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
+        else:
+            scores, embeddings = model(features)
+            scores       = scores.float().flatten()
+            loss_bce     = bce_smooth_fn(scores, labels)
+            loss_triplet = soft_triplet_ohnm(embeddings, labels, tau=tau)
+            loss         = loss_bce + triplet_weight * loss_triplet
+            loss.backward()
+            optimizer.step()
 
         losses_total.append(loss.detach().cpu().item())
         losses_bce.append(loss_bce.detach().cpu().item())

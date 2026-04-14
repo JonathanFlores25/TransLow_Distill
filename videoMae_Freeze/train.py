@@ -17,7 +17,7 @@ import torch.nn as nn
 loss_fn = nn.BCELoss()
 
 
-def concatenated_train_feedback(loader, model, optimizer, device):
+def concatenated_train_feedback(loader, model, optimizer, device, scaler=None):
     model.train()
     model = model.to(device)
 
@@ -25,15 +25,23 @@ def concatenated_train_feedback(loader, model, optimizer, device):
     start  = time.time()
 
     for input, labels in loader:
-        input  = input.to(device).float()
-        labels = labels.to(device).float()
+        input  = input.to(device, non_blocking=True).float()
+        labels = labels.to(device, non_blocking=True).float()
 
-        optimizer.zero_grad()
-        logits = model(input).float().flatten()
-        loss   = loss_fn(logits, labels)
+        optimizer.zero_grad(set_to_none=True)
 
-        loss.backward()
-        optimizer.step()
+        if scaler is not None:
+            with torch.amp.autocast("cuda"):
+                logits = model(input).float().flatten()
+                loss   = loss_fn(logits, labels)
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
+        else:
+            logits = model(input).float().flatten()
+            loss   = loss_fn(logits, labels)
+            loss.backward()
+            optimizer.step()
 
         losses.append(loss.detach().cpu().item())
 

@@ -102,7 +102,12 @@ if __name__ == '__main__':
     # ── GPU ──────────────────────────────────────────────────────────────────
     try_init_rmm_pool()
     device = get_optimal_device()
-    print(f"[main] Dispositivo: {device}")
+
+    # Multi-GPU: si hay más de una GPU visible (CUDA_VISIBLE_DEVICES=2,3),
+    # se usa DataParallel para repartir batches entre ellas.
+    gpu_ids      = list(range(torch.cuda.device_count()))
+    use_multi_gpu = len(gpu_ids) > 1
+    print(f"[main] Dispositivo principal: {device}  |  GPUs visibles: {gpu_ids}")
 
     # ── Backbone VideoMAE (congelado, para test_Over_online) ─────────────────
     use_online_test = (
@@ -122,16 +127,26 @@ if __name__ == '__main__':
         backbone.eval()
         for p in backbone.parameters():
             p.requires_grad = False
-        print("[main] Backbone listo (frozen, fp16).")
+        if use_multi_gpu:
+            backbone = torch.nn.DataParallel(backbone, device_ids=gpu_ids)
+            print(f"[main] Backbone en DataParallel GPUs {gpu_ids}.")
+        backbone = torch.compile(backbone)
+        print("[main] Backbone listo (frozen, fp16, compilado).")
     else:
         print("[main] --test_video_root no especificado. Test online desactivado.")
 
     # ── DataLoaders ───────────────────────────────────────────────────────────
+    _pin  = device.type == "cuda"
+    _pf   = 4   # prefetch_factor: 4 batches adelantados por worker
+
     print("Cargando Val set...")
     val_loader = DataLoader(
         Dataset_VideoMAE(args, test_Mode="Validacion"),
         batch_size=args.batch_size, shuffle=False,
-        num_workers=args.num_workers, pin_memory=device.type=="cuda", drop_last=False,
+        num_workers=args.num_workers, pin_memory=_pin,
+        persistent_workers=args.num_workers > 0,
+        prefetch_factor=_pf if args.num_workers > 0 else None,
+        drop_last=False,
     )
 
     print("Cargando Train set...")
@@ -140,25 +155,33 @@ if __name__ == '__main__':
     train_loader  = DataLoader(
         train_dataset,
         batch_sampler=BalancedBatchSampler(labels, batch_size=args.batch_size, pos_fraction=0.5),
-        num_workers=args.num_workers, pin_memory=device.type=="cuda",
+        num_workers=args.num_workers, pin_memory=_pin,
+        persistent_workers=args.num_workers > 0,
+        prefetch_factor=_pf if args.num_workers > 0 else None,
     )
     print("Datasets listos.")
 
     # ── Clasificador ─────────────────────────────────────────────────────────
     model = VideoMAE_VAD_Classifier(feature_dim=768)
     model = model.to(device)
+    if use_multi_gpu:
+        model = torch.nn.DataParallel(model, device_ids=gpu_ids)
+        print(f"[main] Clasificador en DataParallel GPUs {gpu_ids}.")
+    model = torch.compile(model)
 
-    total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    _model_core = model.module if use_multi_gpu else model
+    total_params = sum(p.numel() for p in _model_core.parameters() if p.requires_grad)
     print(f"[main] Parámetros entrenables del clasificador: {total_params:,}")
 
     os.makedirs(args.ckpt_dir, exist_ok=True)
 
-    # ── Optimizer y scheduler ────────────────────────────────────────────────
-    optimizer = optim.SGD(model.parameters(), lr=args.lr,
+    # ── Optimizer, scheduler y AMP scaler ───────────────────────────────────
+    optimizer = optim.SGD(_model_core.parameters(), lr=args.lr,
                           weight_decay=args.weight_decay, momentum=0.9, nesterov=True)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, mode="max", factor=0.5, patience=2,
     )
+    scaler = torch.amp.GradScaler("cuda") if device.type == "cuda" else None
 
     # ── Evaluación inicial (epoch 0) ─────────────────────────────────────────
     auc_val0, ap_val0 = test_Over(val_loader, model, args, device)
@@ -183,7 +206,7 @@ if __name__ == '__main__':
     # ── Loop de entrenamiento ─────────────────────────────────────────────────
     for epoch in tqdm(range(1, args.max_epoch + 1), total=args.max_epoch, dynamic_ncols=True):
 
-        loss = concatenated_train_feedback(train_loader, model, optimizer, device)
+        loss = concatenated_train_feedback(train_loader, model, optimizer, device, scaler)
 
         auc_val, ap_val = test_Over(val_loader, model, args, device)
 
@@ -213,7 +236,7 @@ if __name__ == '__main__':
 
         if auc_test > best_auc:
             best_auc           = auc_test
-            best_model_weights = model.state_dict().copy()
+            best_model_weights = _model_core.state_dict().copy()
             ckpt_path = os.path.join(
                 args.ckpt_dir,
                 f"videomae_vad_{auc_test:.4f}_ep{epoch}.pt",

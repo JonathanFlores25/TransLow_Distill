@@ -128,7 +128,10 @@ if __name__ == "__main__":
     # ── GPU ──────────────────────────────────────────────────────────────────
     try_init_rmm_pool()
     device = get_optimal_device()
-    print(f"[main] Dispositivo: {device}")
+
+    gpu_ids       = list(range(torch.cuda.device_count()))
+    use_multi_gpu = len(gpu_ids) > 1
+    print(f"[main] Dispositivo principal: {device}  |  GPUs visibles: {gpu_ids}")
 
     # ── Backbone VideoMAE (congelado, para test_Over_online) ─────────────────
     use_online_test = (
@@ -148,17 +151,26 @@ if __name__ == "__main__":
         backbone.eval()
         for p in backbone.parameters():
             p.requires_grad = False
-        print("[main] Backbone listo (frozen, fp16).")
+        if use_multi_gpu:
+            backbone = torch.nn.DataParallel(backbone, device_ids=gpu_ids)
+            print(f"[main] Backbone en DataParallel GPUs {gpu_ids}.")
+        backbone = torch.compile(backbone)
+        print("[main] Backbone listo (frozen, fp16, compilado).")
     else:
         print("[main] --test_video_root no especificado. Test online desactivado.")
 
     # ── DataLoaders ───────────────────────────────────────────────────────────
+    _pin = device.type == "cuda"
+    _pf  = 4
+
     print("Cargando Val set...")
     val_loader = DataLoader(
         Dataset_VideoMAE(args, test_Mode="Validacion"),
         batch_size=args.batch_size, shuffle=False,
         num_workers=args.num_workers,
-        pin_memory=(device.type == "cuda"),
+        pin_memory=_pin,
+        persistent_workers=args.num_workers > 0,
+        prefetch_factor=_pf if args.num_workers > 0 else None,
         drop_last=False,
     )
 
@@ -172,7 +184,9 @@ if __name__ == "__main__":
             min_pos=2, min_neg=1,
         ),
         num_workers=args.num_workers,
-        pin_memory=(device.type == "cuda"),
+        pin_memory=_pin,
+        persistent_workers=args.num_workers > 0,
+        prefetch_factor=_pf if args.num_workers > 0 else None,
     )
     print("Datasets listos.")
 
@@ -183,7 +197,16 @@ if __name__ == "__main__":
         proj_out=args.proj_out,
     ).to(device)
 
-    total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    # Guardar referencia al modelo sin wrapper ANTES de DataParallel/compile,
+    # para que _PredictWrapper pueda llamar .predict() y para state_dict/optimizer.
+    _model_core = model
+
+    if use_multi_gpu:
+        model = torch.nn.DataParallel(model, device_ids=gpu_ids)
+        print(f"[main] Clasificador en DataParallel GPUs {gpu_ids}.")
+    model = torch.compile(model)
+
+    total_params = sum(p.numel() for p in _model_core.parameters() if p.requires_grad)
     print(f"[main] Parámetros entrenables: {total_params:,}")
     print(f"[main] Config: λ_t={args.triplet_weight}  τ={args.tau}  "
           f"smooth={args.label_smoothing}  warmup={args.warmup_epochs}")
@@ -192,17 +215,19 @@ if __name__ == "__main__":
     os.makedirs(args.output_dir, exist_ok=True)
     os.makedirs(args.stats_dir,  exist_ok=True)
 
-    # Wrapper para compatibilidad con test_Over / test_Over_online de v1
-    eval_model = _PredictWrapper(model)
+    # Wrapper para compatibilidad con test_Over / test_Over_online de v1.
+    # Usa _model_core (sin DataParallel) para acceder a .predict() directamente.
+    eval_model = _PredictWrapper(_model_core)
 
-    # ── Optimizer ─────────────────────────────────────────────────────────────
+    # ── Optimizer y AMP scaler ────────────────────────────────────────────────
     optimizer = optim.SGD(
-        model.parameters(),
+        _model_core.parameters(),
         lr=args.lr,
         weight_decay=args.weight_decay,
         momentum=0.9,
         nesterov=True,
     )
+    scaler = torch.amp.GradScaler("cuda") if device.type == "cuda" else None
 
     # ── Scheduler: warmup lineal → CosineAnnealing ───────────────────────────
     warmup_epochs = max(0, args.warmup_epochs)
@@ -262,6 +287,7 @@ if __name__ == "__main__":
             train_loader, model, optimizer, device,
             triplet_weight=args.triplet_weight,
             tau=args.tau,
+            scaler=scaler,
         )
 
         auc_val, ap_val = test_Over(val_loader, eval_model, val_args, device)
@@ -295,7 +321,7 @@ if __name__ == "__main__":
         # ── Checkpoint ───────────────────────────────────────────────────────
         if auc_test > best_auc:
             best_auc           = auc_test
-            best_model_weights = {k: v.cpu().clone() for k, v in model.state_dict().items()}
+            best_model_weights = {k: v.cpu().clone() for k, v in _model_core.state_dict().items()}
             ckpt_path = os.path.join(
                 args.ckpt_dir,
                 f"vmae_v2_{auc_test:.4f}_ep{epoch}.pt",
